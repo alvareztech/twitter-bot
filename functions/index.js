@@ -56,6 +56,18 @@ exports.callback = functions.https.onRequest(async (request, response) => {
 });
 
 exports.tweet = functions.https.onRequest(async (request, response) => {
+  console.log('Param Sign: ', request.query.sign)
+  const sign = 'Aquarius'
+  if (!request.query.sign) {
+    sign = request.query.sign
+  }
+
+  const data = tweetHoroscope(sign)
+
+  response.send(data);
+});
+
+async function tweetHoroscope(sign) {
   const { refreshToken } = (await dbRef.get()).data();
 
   const {
@@ -68,7 +80,7 @@ exports.tweet = functions.https.onRequest(async (request, response) => {
 
   const aiResponse = await openai.createCompletion({
     model: "text-davinci-002",
-    prompt: "Tweet today's Virgo horoscope in Spanish\n",
+    prompt: "Tweet today's " + sign + " horoscope in Spanish",
     temperature: 0,
     max_tokens: 60,
     top_p: 1,
@@ -81,19 +93,20 @@ exports.tweet = functions.https.onRequest(async (request, response) => {
   const { data } = await refreshedClient.v2.tweet(
     aiResponse.data.choices[0].text
   );
+  return data;
+}
 
-  response.send(data);
-});
-
-exports.tweetHourly = functions.pubsub.schedule('20 12 * * *')
+exports.tweetHourly = functions.pubsub.schedule('52 12 * * *')
   .onRun((context) => {
-    console.log('signs::: ');
+    console.log('Tweet ', signs[0])
+    tweetHoroscope(signs[0])
     return null;
   });
 
-exports.tweetHourly2 = functions.pubsub.schedule('22 12 * * *')
+exports.tweetHourly2 = functions.pubsub.schedule('53 12 * * *')
   .onRun((context) => {
-    console.log('signs2::: ');
+    console.log('Tweet ', signs[1])
+    tweetHoroscope(signs[1])
     return null;
   });
 
