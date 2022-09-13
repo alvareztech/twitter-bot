@@ -67,8 +67,8 @@ exports.tweet = functions.https.onRequest(async (request, response) => {
 });
 
 async function tweetHoroscope(text) {
+  console.log('tweetHoroscope: ', text);
   const { refreshToken } = (await dbRef.get()).data();
-
   const {
     client: refreshedClient,
     accessToken,
@@ -96,16 +96,16 @@ async function generateText(prompt) {
 
   console.log('ai:', aiResponse.data.choices[0].text)
 
-  return aiResponse.data.choices[0].text
+  return aiResponse.data.choices[0].text.trim();
 }
 
-exports.automaticTweet = functions.pubsub.schedule('15, 17, 19 16 * * *')
-  .onRun((context) => {
+exports.automaticTweet = functions.pubsub.schedule('40,42,44 16 * * *')
+  .onRun(async (context) => {
     console.log('Tweet time!')
     const basePrompt = prompts[Math.floor(Math.random() * 2)]
     const prompt = basePrompt.replace('@', signs[Math.floor(Math.random() * 12)])
     console.log('Prompt generated: ', prompt);
-    tweetHoroscope(generateText(prompt))
+    tweetHoroscope(await generateText(prompt))
     return null;
   });
 
