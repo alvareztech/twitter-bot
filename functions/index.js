@@ -56,18 +56,17 @@ exports.callback = functions.https.onRequest(async (request, response) => {
 });
 
 exports.tweet = functions.https.onRequest(async (request, response) => {
-  console.log('Param Sign: ', request.query.sign)
-  const sign = 'Aquarius'
-  if (!request.query.sign) {
-    sign = request.query.sign
+  console.log('Text Sign: ', request.query.text)
+  let text = 'Hello World!'
+  if (!request.query.text) {
+    text = request.query.text
   }
-
-  const data = tweetHoroscope(sign)
-
+  console.log('Text: ', text);
+  const data = tweetHoroscope(text)
   response.send(data);
 });
 
-async function tweetHoroscope(sign) {
+async function tweetHoroscope(text) {
   const { refreshToken } = (await dbRef.get()).data();
 
   const {
@@ -78,36 +77,37 @@ async function tweetHoroscope(sign) {
 
   await dbRef.set({ accessToken, refreshToken: newRefreshToken });
 
+  const { data } = await refreshedClient.v2.tweet(
+    text
+  );
+  return data;
+}
+
+async function generateText(prompt) {
   const aiResponse = await openai.createCompletion({
     model: "text-davinci-002",
-    prompt: "Tweet today's " + sign + " horoscope in Spanish",
-    temperature: 0,
-    max_tokens: 60,
+    prompt: prompt,
+    temperature: 1,
+    max_tokens: 105,
     top_p: 1,
-    frequency_penalty: 0.5,
+    frequency_penalty: 0,
     presence_penalty: 0,
   });
 
   console.log('ai:', aiResponse.data.choices[0].text)
 
-  const { data } = await refreshedClient.v2.tweet(
-    aiResponse.data.choices[0].text
-  );
-  return data;
+  return aiResponse.data.choices[0].text
 }
 
-exports.tweetHourly = functions.pubsub.schedule('52 12 * * *')
+exports.automaticTweet = functions.pubsub.schedule('15, 17, 19 16 * * *')
   .onRun((context) => {
-    console.log('Tweet ', signs[0])
-    tweetHoroscope(signs[0])
-    return null;
-  });
-
-exports.tweetHourly2 = functions.pubsub.schedule('53 12 * * *')
-  .onRun((context) => {
-    console.log('Tweet ', signs[1])
-    tweetHoroscope(signs[1])
+    console.log('Tweet time!')
+    const basePrompt = prompts[Math.floor(Math.random() * 2)]
+    const prompt = basePrompt.replace('@', signs[Math.floor(Math.random() * 12)])
+    console.log('Prompt generated: ', prompt);
+    tweetHoroscope(generateText(prompt))
     return null;
   });
 
 const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
+const prompts = ["Tweet today's horoscope of @ in Spanish.", "Lucky number of @ in Spanish."]
