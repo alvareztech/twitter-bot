@@ -1,5 +1,7 @@
 # Twitter Bot
 
-A small but smart Twitter Bot.
+A small bot that tells you your horoscope and lucky number in a Tweet with Artificial Intelligence.
 
-This is live here: [twitter.com/horoscopoAI](https://twitter.com/horoscopoAI)
+## Live
+
+[twitter.com/horoscopoAI](https://twitter.com/horoscopoAI)
