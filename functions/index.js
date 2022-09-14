@@ -102,12 +102,15 @@ async function generateText(prompt) {
 exports.automaticTweet = functions.pubsub.schedule('0 * * * *')
   .onRun(async (context) => {
     console.log('Tweet time!')
-    const basePrompt = prompts[Math.floor(Math.random() * 2)]
-    const prompt = basePrompt.replace('@', signs[Math.floor(Math.random() * 12)])
+    const basePrompt = prompts[probabilityPrompts[Math.floor(Math.random() * 6)]]
+    const sign = signs[Math.floor(Math.random() * 12)];
+    const prompt = basePrompt.replace('@', sign);
     console.log('Prompt generated: ', prompt);
-    tweetHoroscope(await generateText(prompt))
+    let text = await generateText(prompt);
+    tweetHoroscope(text + " #" + sign);
     return null;
   });
 
 const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
 const prompts = ["Tweet today's horoscope of @ in Spanish.", "Lucky number of @ in Spanish."]
+const probabilityPrompts = [0, 1, 0, 0, 1, 0]
