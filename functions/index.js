@@ -94,12 +94,12 @@ async function generateText(prompt) {
     presence_penalty: 0,
   });
 
-  console.log('ai:', aiResponse.data.choices[0].text)
+  console.log('ai:', aiResponse.data.choices[0].text);
 
   return aiResponse.data.choices[0].text.trim();
 }
 
-exports.automaticTweet = functions.pubsub.schedule('40,42,44 16 * * *')
+exports.automaticTweet = functions.pubsub.schedule('0 * * * *')
   .onRun(async (context) => {
     console.log('Tweet time!')
     const basePrompt = prompts[Math.floor(Math.random() * 2)]
