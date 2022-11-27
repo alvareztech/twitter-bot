@@ -103,14 +103,17 @@ exports.automaticTweet = functions.pubsub.schedule('0 * * * *')
   .onRun(async (context) => {
     console.log('Tweet time!')
     const basePrompt = prompts[probabilityPrompts[Math.floor(Math.random() * 6)]]
-    const sign = signs[Math.floor(Math.random() * 12)];
+    const random = Math.floor(Math.random() * 12)
+    const sign = signs[random];
     const prompt = basePrompt.replace('@', sign);
     console.log('Prompt generated: ', prompt);
     let text = await generateText(prompt);
-    tweetHoroscope(text + " #" + sign);
+    tweetHoroscope(text + " #" + signsES[random] + " " + signsEmoji[random]);
     return null;
   });
 
 const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
+const signsES = ['Aries', 'Tauro', 'Geminis', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Escorpio', 'Sagitario', 'Capricornio', 'Acuario', 'Piscis']
+const signsEmoji = ['♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️']
 const prompts = ["Tweet today's horoscope of @ in Spanish.", "Lucky number of @ in Spanish."]
 const probabilityPrompts = [0, 1, 0, 0, 1, 0]
